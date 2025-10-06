@@ -1,0 +1,74 @@
+{
+  "name": "Francis Lozano Studio - Luxury Nail Artistry",
+  "short_name": "Francis Nails",
+  "description": "Bespoke nail design by appointment in Nashville. Private studio offering custom nail art, luxury manicures, and premium nail systems.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["beauty", "lifestyle", "health"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "short_name": "Book",
+      "description": "Book your nail appointment",
+      "url": "/booking",
+      "icons": [
+        {
+          "src": "/placeholder.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "View Gallery",
+      "short_name": "Gallery",
+      "description": "Browse nail art gallery",
+      "url": "/gallery",
+      "icons": [
+        {
+          "src": "/placeholder.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "short_name": "Contact",
+      "description": "Get in touch",
+      "url": "/contact",
+      "icons": [
+        {
+          "src": "/placeholder.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
