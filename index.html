@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Francis Lozano Studio | Luxury Nail Artistry in Nashville</title>
+    <meta name="description" content="Bespoke nail design by appointment in Nashville. Private studio offering custom nail art, luxury manicures, and premium nail systems by artist Francis Lozano." />
+    <meta name="author" content="Francis Lozano Studio" id="page-author" />
+    <meta name="keywords" content="nail artist Nashville, custom nails Nashville, luxury manicure Nashville, private nail studio, nail art Nashville, bespoke nail design" />
+
+    <meta property="og:title" content="Francis Lozano Studio | Luxury Nail Artistry in Nashville" id="og-title" />
+    <meta property="og:description" content="Bespoke nail design by appointment in Nashville. Private studio offering custom nail art, luxury manicures, and premium nail systems." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="image.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@aymaneidsidi" />
+    <meta name="twitter:image" content="image.png" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Francis Nails" id="app-title">
+    <meta name="theme-color" content="#8b5cf6">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/placeholder.svg">
+    <link rel="apple-touch-icon" sizes="152x152" href="/placeholder.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/placeholder.svg">
+    <link rel="apple-touch-icon" sizes="167x167" href="/placeholder.svg">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Update page title and meta tags when studio settings change
+      window.addEventListener('studioSettingsUpdated', function(event) {
+        const settings = event.detail;
+        if (settings) {
+          const titleElement = document.getElementById('page-title');
+          const authorElement = document.getElementById('page-author');
+          const ogTitleElement = document.getElementById('og-title');
+          const appTitleElement = document.getElementById('app-title');
+          
+          if (titleElement) titleElement.textContent = `${settings.studio_name} | Luxury Nail Artistry in Nashville`;
+          if (authorElement) authorElement.setAttribute('content', settings.studio_name);
+          if (ogTitleElement) ogTitleElement.setAttribute('content', `${settings.studio_name} | Luxury Nail Artistry in Nashville`);
+          if (appTitleElement) appTitleElement.setAttribute('content', settings.studio_name.split(' ')[0] + ' Nails');
+        }
+      });
+    </script>
+  </body>
+</html>

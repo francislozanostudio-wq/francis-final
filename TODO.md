@@ -1,0 +1,5 @@
+- [ ] Read `src/pages/AdminLogin.tsx` to understand the current styling.
+- [ ] Identify CSS classes or inline styles related to light mode colors and text colors on the admin login page.
+- [ ] Determine appropriate color adjustments for light mode.
+- [ ] Modify the `src/pages/AdminLogin.tsx` file to implement the color fixes.
+- [ ] Verify the changes.
