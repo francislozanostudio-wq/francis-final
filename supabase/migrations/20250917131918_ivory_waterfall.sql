@@ -134,7 +134,7 @@ CREATE TRIGGER update_review_links_updated_at
 -- Insert default review links
 INSERT INTO review_links (platform, platform_name, url, display_order) VALUES
   ('google', 'Google Reviews', 'https://www.google.com/search?q=francis+lozano+studio+reviews', 1),
-  ('instagram', 'Instagram', 'https://instagram.com/francislozanostudio', 2)
+  ('instagram', 'Instagram', 'https://www.instagram.com/francis_lozano_studio', 2)
 ON CONFLICT (platform) DO NOTHING;
 
 -- Insert sample testimonials (preserving existing ones from the static data)

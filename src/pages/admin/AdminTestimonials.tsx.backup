@@ -1,5 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Plus, CreditCard as Edit, Trash2, Save, RefreshCw, Star, StarOff, Eye, EyeOff, Search, Filter, Move, MessageSquare, Upload, Link as LinkIcon, ExternalLink, Quote, User, MapPin, Award, Link2 } from 'lucide-react';
+import { 
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  RefreshCw,
+  Star,
+  StarOff,
+  Eye,
+  EyeOff,
+  Search,
+  Filter,
+  Move,
+  MessageSquare,
+  Upload,
+  Link as LinkIcon,
+  ExternalLink,
+  Quote,
+  User,
+  MapPin,
+  Award
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +34,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { TestimonialLinkGenerator } from '@/components/admin/TestimonialLinkGenerator';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,20 +70,9 @@ interface TestimonialStats {
   averageRating: number;
 }
 
-interface TestimonialLink {
-  id: string;
-  short_code: string;
-  created_at: string;
-  expires_at: string | null;
-  is_active: boolean;
-  max_uses: number | null;
-  use_count: number;
-}
-
 const AdminTestimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [reviewLinks, setReviewLinks] = useState<ReviewLink[]>([]);
-  const [testimonialLinks, setTestimonialLinks] = useState<TestimonialLink[]>([]);
   const [filteredTestimonials, setFilteredTestimonials] = useState<Testimonial[]>([]);
   const [stats, setStats] = useState<TestimonialStats>({
     total: 0,
@@ -137,8 +146,8 @@ const AdminTestimonials = () => {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-
-      const [testimonialsResult, reviewLinksResult, testimonialLinksResult] = await Promise.all([
+      
+      const [testimonialsResult, reviewLinksResult] = await Promise.all([
         supabase
           .from('testimonials')
           .select('*')
@@ -147,11 +156,7 @@ const AdminTestimonials = () => {
         supabase
           .from('review_links')
           .select('*')
-          .order('display_order', { ascending: true }),
-        supabase
-          .from('testimonial_links')
-          .select('*')
-          .order('created_at', { ascending: false })
+          .order('display_order', { ascending: true })
       ]);
 
       if (testimonialsResult.error) {
@@ -176,7 +181,6 @@ const AdminTestimonials = () => {
 
       setTestimonials(testimonialsResult.data || []);
       setReviewLinks(reviewLinksResult.data || []);
-      setTestimonialLinks(testimonialLinksResult.data || []);
       calculateStats(testimonialsResult.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -672,18 +676,14 @@ const AdminTestimonials = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="testimonials" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="testimonials" className="flex items-center">
               <Quote className="mr-2" size={16} />
               Testimonials ({stats.total})
             </TabsTrigger>
-            <TabsTrigger value="review-generator" className="flex items-center">
-              <Link2 className="mr-2" size={16} />
-              Review Generator ({testimonialLinks.length})
-            </TabsTrigger>
             <TabsTrigger value="review-links" className="flex items-center">
               <ExternalLink className="mr-2" size={16} />
-              External Links ({reviewLinks.length})
+              Review Links ({reviewLinks.length})
             </TabsTrigger>
           </TabsList>
 
@@ -1073,11 +1073,6 @@ const AdminTestimonials = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Review Generator Tab */}
-          <TabsContent value="review-generator" className="space-y-6">
-            <TestimonialLinkGenerator links={testimonialLinks} onRefresh={fetchData} />
           </TabsContent>
 
           {/* Review Links Tab */}

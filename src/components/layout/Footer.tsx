@@ -3,10 +3,20 @@ import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getStudioSettings, subscribeToStudioSettings, type StudioSettings } from '@/lib/studioService';
 import { useTranslations } from '@/lib/translations';
+import { supabase } from '@/lib/supabase';
+
+interface Service {
+  id: string;
+  name: string;
+  category: string;
+  is_active: boolean;
+  display_order: number;
+}
 
 const Footer = () => {
-  const { t, language } = useTranslations();
+  const { t, language, translateByText } = useTranslations();
   const [studioSettings, setStudioSettings] = useState<StudioSettings | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
     // Load initial studio settings
@@ -16,15 +26,50 @@ const Footer = () => {
     };
     loadStudioSettings();
 
+    // Fetch services for footer
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select('id, name, category, is_active, display_order')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true })
+          .limit(5);
+
+        if (error) {
+          console.error('Error fetching services:', error);
+          return;
+        }
+
+        setServices(data || []);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      }
+    };
+
+    fetchServices();
+
     // Set up real-time subscription
     const subscription = subscribeToStudioSettings((settings) => {
       setStudioSettings(settings);
     });
 
+    // Subscribe to services changes
+    const servicesSubscription = supabase
+      .channel('footer-services-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'services' },
+        () => {
+          fetchServices();
+        }
+      )
+      .subscribe();
+
     return () => {
       if (subscription) {
         subscription.unsubscribe();
       }
+      supabase.removeChannel(servicesSubscription);
     };
   }, []);
 
@@ -77,15 +122,24 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-heading text-lg font-semibold text-gold">{t('footer.services', 'Services')}</h4>
             <div className="space-y-2">
-              {[
-                'Classic Manicures',
-                'Luxury Pedicures',
-                'Gel-X & Acrylics',
-                'Custom Nail Art',
-                'Chrome & Foils',
-              ].map((service) => (
-                <p key={service} className="text-gray-300 text-sm">{service}</p>
-              ))}
+              {services.length > 0 ? (
+                services.map((service) => (
+                  <p key={service.id} className="text-gray-300 text-sm">
+                    {translateByText(service.name)}
+                  </p>
+                ))
+              ) : (
+                // Fallback if no services loaded yet
+                [
+                  t('footer.service_manicure', 'Manicure with Natural Nail Overlay'),
+                  t('footer.service_pedicure', 'Classic Pedicure'),
+                  t('footer.service_soft_gel', 'Soft Gel Nails'),
+                  t('footer.service_acrylic', 'Acrylic Nails'),
+                  t('footer.service_luxury_pedi', 'Luxury Pedi-Spa'),
+                ].map((service, index) => (
+                  <p key={index} className="text-gray-300 text-sm">{service}</p>
+                ))
+              )}
             </div>
           </div>
 
@@ -109,7 +163,7 @@ const Footer = () => {
               <div className="flex items-center space-x-3">
                 <Instagram size={16} className="text-gold flex-shrink-0" />
                 <a 
-                  href="https://instagram.com/francislozanostudio"
+                  href="https://www.instagram.com/francis_lozano_studio"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-gold transition-colors text-sm"
@@ -123,7 +177,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 {studioName}. All rights reserved.
+            © 2025 {studioName}. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/privacy" className="text-gray-400 hover:text-gold transition-colors text-sm">

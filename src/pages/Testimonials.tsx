@@ -314,7 +314,7 @@ const Testimonials = () => {
               </Button>
               <Button asChild variant="outline" size="lg" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
                 <a 
-                  href="https://instagram.com/francislozanostudio" 
+                  href="https://www.instagram.com/francis_lozano_studio" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >

@@ -498,7 +498,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-semibold text-card-foreground mb-2">{t('contact.location.city', 'Nashville, Tennessee')}</h4>
                     <p className="text-muted-foreground">
-                      {t('contact.location.description', 'Nashboro Village, Nashville Tennessee, 37218. La dirección exacta de envía luego de realizar la reserva para mayor privacidad y seguridad.')}
+                      {t('contact.location.description', 'Nashboro Village, Nashville Tennessee, 37217. La dirección exacta de envía luego de realizar la reserva para mayor privacidad y seguridad.')}
                     </p>
                   </div>
                   

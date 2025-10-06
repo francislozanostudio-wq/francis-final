@@ -136,7 +136,7 @@ const Index = () => {
       <section className="relative min-h-screen flex items-center justify-center">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url('${heroContent?.image_url || 'https://btartboxnails.com/cdn/shop/articles/img-1725960594240.png?v=1726038916'}')` }}
+          style={{ backgroundImage: `url('${heroContent?.image_url || ''}')` }}
         >
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
@@ -145,9 +145,18 @@ const Index = () => {
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-light mb-6 tracking-wide">
             {translateByText(heroContent?.title) || t('homepage.hero.title', 'Francis Lozano Studio')}
           </h1>
-          <p className="text-lg md:text-xl lg:text-2xl mb-12 font-light max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl mb-8 font-light max-w-3xl mx-auto leading-relaxed">
             {translateByText(heroContent?.subtitle) || t('homepage.hero.subtitle', 'Exquisite nail artistry by appointment in Nashville. Where craftsmanship meets elegance in an intimate studio setting.')}
           </p>
+          
+          {heroContent?.content && (
+            <div className="mb-12 max-w-3xl mx-auto">
+              <p className="text-base md:text-lg font-light leading-relaxed whitespace-pre-line text-white/95 italic">
+                {translateByText(heroContent.content)}
+              </p>
+            </div>
+          )}
+          
           <Button 
             asChild 
             size="lg" 

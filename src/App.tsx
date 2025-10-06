@@ -25,6 +25,7 @@ import AdminEmailSettings from "./pages/admin/AdminEmailSettings";
 import AdminTranslations from "./pages/admin/AdminTranslations";
 import AdminServicePageSettings from "./pages/admin/AdminServicePageSettings";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { SubmitReview } from "./pages/SubmitReview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/booking" element={<Booking />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/review/:shortCode" element={<SubmitReview />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/bookings" element={<ProtectedRoute requireAdmin><AdminBookings /></ProtectedRoute>} />
