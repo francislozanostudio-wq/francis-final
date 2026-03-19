@@ -4,8 +4,12 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
+const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
+const githubPagesBase = repoName ? `/${repoName}/` : "/";
+const appBasePath = process.env.VITE_BASE_PATH || (process.env.GITHUB_ACTIONS ? githubPagesBase : "/");
+
 export default defineConfig(({ mode }) => ({
-  base: "/",
+  base: appBasePath,
   server: {
     host: "::",
     port: 8080,
