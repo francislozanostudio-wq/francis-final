@@ -47,6 +47,9 @@ interface Booking {
   id: string;
   service_name: string;
   service_price: number;
+  selected_services?: { id?: string; name: string; price?: number; duration?: number; category?: string }[];
+  services_total?: number;
+  service_duration_total?: number;
   appointment_date: string;
   appointment_time: string;
   client_name: string;
@@ -176,7 +179,7 @@ const AdminBookings = () => {
       }).length,
       totalRevenue: bookingsData
         .filter(b => b.status === 'completed')
-        .reduce((sum, b) => sum + b.service_price, 0),
+        .reduce((sum, b) => sum + getServicesTotal(b), 0),
       monthlyRevenue: bookingsData
         .filter(b => {
           const bookingDate = parseISO(b.created_at);
@@ -184,7 +187,7 @@ const AdminBookings = () => {
                  bookingDate.getFullYear() === currentYear &&
                  b.status === 'completed';
         })
-        .reduce((sum, b) => sum + b.service_price, 0)
+        .reduce((sum, b) => sum + getServicesTotal(b), 0)
     };
 
     setStats(stats);
@@ -199,7 +202,7 @@ const AdminBookings = () => {
       filtered = filtered.filter(booking =>
         booking.client_name.toLowerCase().includes(term) ||
         booking.client_email.toLowerCase().includes(term) ||
-        booking.service_name.toLowerCase().includes(term) ||
+        getServiceDisplayName(booking).toLowerCase().includes(term) ||
         booking.confirmation_number.toLowerCase().includes(term) ||
         booking.client_phone.includes(term)
       );
@@ -250,8 +253,8 @@ const AdminBookings = () => {
           bValue = b.client_name.toLowerCase();
           break;
         case 'service_price':
-          aValue = a.service_price;
-          bValue = b.service_price;
+          aValue = getServicesTotal(a);
+          bValue = getServicesTotal(b);
           break;
         case 'created_at':
         default:
@@ -403,10 +406,10 @@ const AdminBookings = () => {
         booking.client_name,
         booking.client_email,
         booking.client_phone,
-        booking.service_name,
+        getServiceDisplayName(booking),
         booking.appointment_date,
         booking.appointment_time,
-        booking.service_price.toString(),
+        getServicesTotal(booking).toString(),
         booking.status,
         format(parseISO(booking.created_at), 'yyyy-MM-dd HH:mm'),
         booking.notes || ''
@@ -458,6 +461,25 @@ const AdminBookings = () => {
     if (isToday(appointmentDate)) return 'high';
     if (isTomorrow(appointmentDate)) return 'medium';
     return 'normal';
+  };
+
+  const getSelectedServices = (booking: Booking) => {
+    if (booking.selected_services && booking.selected_services.length > 0) {
+      return booking.selected_services;
+    }
+
+    return [{ name: booking.service_name, price: booking.service_price, duration: booking.service_duration_total }];
+  };
+
+  const getServiceDisplayName = (booking: Booking) => {
+    return getSelectedServices(booking).map((service) => service.name).join(', ');
+  };
+
+  const getServicesTotal = (booking: Booking) => {
+    if (typeof booking.services_total === 'number') {
+      return booking.services_total;
+    }
+    return booking.service_price;
   };
 
   if (isLoading) {
@@ -703,7 +725,7 @@ const AdminBookings = () => {
                           <div className="flex-1 space-y-2 sm:space-y-3">
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="font-semibold text-card-foreground text-sm sm:text-lg">
-                                {booking.service_name}
+                                {getServiceDisplayName(booking)}
                               </h3>
                               <Badge className={`${getStatusColor(booking.status)} text-xs`}>
                                 <div className="flex items-center space-x-1">
@@ -739,7 +761,7 @@ const AdminBookings = () => {
                                 <div className="flex items-center text-muted-foreground">
                                   <DollarSign className="mr-2 flex-shrink-0" size={14} />
                                   <div>
-                                    <span className="font-medium">${booking.service_price}</span>
+                                    <span className="font-medium">${getServicesTotal(booking).toFixed(2)}</span>
                                     {booking.selected_add_ons && booking.selected_add_ons.length > 0 && (
                                       <>
                                         <span className="text-xs text-accent ml-1">
@@ -747,7 +769,7 @@ const AdminBookings = () => {
                                         </span>
                                         <br />
                                         <span className="text-xs font-bold text-accent">
-                                          Total: ${(booking.service_price + (booking.add_ons_total || 0)).toFixed(2)}
+                                          Total: ${(getServicesTotal(booking) + (booking.add_ons_total || 0)).toFixed(2)}
                                         </span>
                                       </>
                                     )}
@@ -800,6 +822,26 @@ const AdminBookings = () => {
                                       {booking.selected_add_ons.map((addOn: any, index: number) => (
                                         <span key={index} className="text-xs text-accent bg-accent/10 px-2 py-0.5 rounded">
                                           {addOn.name} (+${addOn.price})
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {booking.selected_services && booking.selected_services.length > 0 && (
+                              <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-blue-50/50 rounded-md border border-blue-200/30">
+                                <div className="flex items-start space-x-2">
+                                  <FileText size={14} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-medium text-card-foreground mb-1">
+                                      Services ({booking.selected_services.length}):
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {booking.selected_services.map((service, index) => (
+                                        <span key={service.id || `${service.name}-${index}`} className="text-xs text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
+                                          {service.name} {typeof service.price === 'number' ? `($${service.price})` : ''}
                                         </span>
                                       ))}
                                     </div>
@@ -899,7 +941,7 @@ const AdminBookings = () => {
                                           Are you sure you want to delete this booking? This action cannot be undone.
                                           <br /><br />
                                           <strong>Client:</strong> {booking.client_name}<br />
-                                          <strong>Service:</strong> {booking.service_name}<br />
+                                          <strong>Service:</strong> {getServiceDisplayName(booking)}<br />
                                           <strong>Date:</strong> {format(parseISO(booking.appointment_date), 'PPP')} at {booking.appointment_time}
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
@@ -941,8 +983,17 @@ const AdminBookings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Service</Label>
-                      <p className="text-lg font-semibold">{selectedBooking.service_name}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Services</Label>
+                      <p className="text-lg font-semibold">{getServiceDisplayName(selectedBooking)}</p>
+                      {selectedBooking.selected_services && selectedBooking.selected_services.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {selectedBooking.selected_services.map((service, index) => (
+                            <p key={service.id || `${service.name}-${index}`} className="text-sm text-muted-foreground">
+                              • {service.name}{typeof service.price === 'number' ? ` ($${service.price})` : ''}{typeof service.duration === 'number' ? ` - ${service.duration} min` : ''}
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Date & Time</Label>
@@ -953,14 +1004,14 @@ const AdminBookings = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Price</Label>
-                      <p className="text-lg font-semibold">${selectedBooking.service_price}</p>
+                      <p className="text-lg font-semibold">${getServicesTotal(selectedBooking).toFixed(2)}</p>
                       {selectedBooking.selected_add_ons && selectedBooking.selected_add_ons.length > 0 && (
                         <>
                           <p className="text-sm text-muted-foreground mt-1">
                             Add-ons: +${selectedBooking.add_ons_total?.toFixed(2) || '0.00'}
                           </p>
                           <p className="text-base font-bold text-accent mt-1">
-                            Total: ${(selectedBooking.service_price + (selectedBooking.add_ons_total || 0)).toFixed(2)}
+                            Total: ${(getServicesTotal(selectedBooking) + (selectedBooking.add_ons_total || 0)).toFixed(2)}
                           </p>
                         </>
                       )}
@@ -1077,7 +1128,7 @@ const AdminBookings = () => {
               <div className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Booking: {editingBooking.service_name} - {editingBooking.client_name}
+                    Booking: {getServiceDisplayName(editingBooking)} - {editingBooking.client_name}
                   </Label>
                 </div>
                 <div>

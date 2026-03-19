@@ -15,7 +15,7 @@ interface ConfirmationStepProps {
 }
 
 export function ConfirmationStep({ bookingData, onNewBooking }: ConfirmationStepProps) {
-  const { service, date, time, clientInfo, confirmationNumber } = bookingData;
+  const { selectedServices, date, time, clientInfo, confirmationNumber } = bookingData;
   const { t, language, translateByText } = useTranslations();
   const [studioSettings, setStudioSettings] = useState<StudioSettings | null>(null);
 
@@ -39,9 +39,14 @@ export function ConfirmationStep({ bookingData, onNewBooking }: ConfirmationStep
     };
   }, []);
   
-  if (!service || !date || !time || !clientInfo || !clientInfo.fullName || !clientInfo.email || !clientInfo.phone || !confirmationNumber) {
+  if (!selectedServices.length || !date || !time || !clientInfo || !clientInfo.fullName || !clientInfo.email || !clientInfo.phone || !confirmationNumber) {
     return <div>Incomplete booking data</div>;
   }
+
+  const servicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const servicesDurationTotal = selectedServices.reduce((sum, service) => sum + service.duration, 0);
+  const addOnsTotal = bookingData.selectedAddOns?.reduce((sum, addOn) => sum + addOn.price, 0) || 0;
+  const grandTotal = servicesTotal + addOnsTotal;
 
   const studioName = studioSettings?.studio_name || 'Francis Lozano Studio';
   const studioPhone = studioSettings?.studio_phone || '(+1 737-378-5755';
@@ -87,12 +92,14 @@ export function ConfirmationStep({ bookingData, onNewBooking }: ConfirmationStep
               <div className="flex items-start space-x-3">
                 <CalendarIcon className="text-accent mt-1" size={20} />
                 <div>
-                  <p className="font-semibold text-card-foreground">{translateByText(service.name)}</p>
+                  <p className="font-semibold text-card-foreground">
+                    {selectedServices.map((service) => translateByText(service.name)).join(', ')}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {format(date, "PPPP")} at {time}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Duration: {service.duration} minutes
+                    Duration: {servicesDurationTotal} minutes
                   </p>
                 </div>
               </div>
@@ -117,21 +124,21 @@ export function ConfirmationStep({ bookingData, onNewBooking }: ConfirmationStep
                 <div>
                   <p className="font-semibold text-card-foreground">Service Details</p>
                   <p className="text-sm text-muted-foreground">
-                    Service: ${service.price}
+                    Services ({selectedServices.length}): ${servicesTotal.toFixed(2)}
                   </p>
                   {bookingData.selectedAddOns && bookingData.selectedAddOns.length > 0 && (
                     <>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Add-ons: +${bookingData.selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0).toFixed(2)}
+                        Add-ons: +${addOnsTotal.toFixed(2)}
                       </p>
                       <p className="text-sm font-bold text-accent mt-1">
-                        Total: ${(service.price + bookingData.selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0)).toFixed(2)}
+                        Total: ${grandTotal.toFixed(2)}
                       </p>
                     </>
                   )}
                   {(!bookingData.selectedAddOns || bookingData.selectedAddOns.length === 0) && (
                     <p className="text-sm font-bold text-accent mt-1">
-                      Total: ${service.price}
+                      Total: ${servicesTotal.toFixed(2)}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">

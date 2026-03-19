@@ -20,12 +20,12 @@ export interface Service {
 }
 
 interface ServiceSelectionStepProps {
-  selectedService?: Service;
-  onServiceSelect: (service: Service) => void;
+  selectedServices: Service[];
+  onServicesChange: (services: Service[]) => void;
   onNext: () => void;
 }
 
-export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({ selectedServices, onServicesChange, onNext }: ServiceSelectionStepProps) {
   const [hoveredService, setHoveredService] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,11 +79,22 @@ export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext 
     }
   };
 
-  const handleServiceSelect = (service: Service) => {
-    onServiceSelect(service);
+  const isServiceSelected = (serviceId: string) => {
+    return selectedServices.some((service) => service.id === serviceId);
   };
 
-  const canProceed = selectedService !== undefined;
+  const handleServiceToggle = (service: Service) => {
+    if (isServiceSelected(service.id)) {
+      onServicesChange(selectedServices.filter((selected) => selected.id !== service.id));
+      return;
+    }
+
+    onServicesChange([...selectedServices, service]);
+  };
+
+  const canProceed = selectedServices.length > 0;
+  const selectedServicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const selectedServicesDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -113,13 +124,13 @@ export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext 
               key={service.id}
               className={cn(
                 "cursor-pointer transition-all duration-300 hover-lift animate-fade-in",
-                selectedService?.id === service.id
+                isServiceSelected(service.id)
                   ? "border-accent ring-2 ring-accent/20 shadow-glow"
                   : "border-border hover:border-accent/50",
                 "bg-card"
               )}
               style={{ animationDelay: `${index * 0.1}s` }}
-              onClick={() => handleServiceSelect(service)}
+              onClick={() => handleServiceToggle(service)}
               onMouseEnter={() => setHoveredService(service.id)}
               onMouseLeave={() => setHoveredService(null)}
             >
@@ -130,11 +141,11 @@ export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext 
                   </h3>
                   <div className={cn(
                     "w-5 h-5 rounded-full border-2 transition-all duration-200",
-                    selectedService?.id === service.id
+                    isServiceSelected(service.id)
                       ? "border-accent bg-accent" 
                       : "border-muted-foreground"
                   )}>
-                    {selectedService?.id === service.id && (
+                    {isServiceSelected(service.id) && (
                       <div className="w-full h-full rounded-full bg-accent animate-scale-in" />
                     )}
                   </div>
@@ -155,7 +166,7 @@ export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext 
                       <span className="text-sm">{service.duration}min</span>
                     </div>
                   </div>
-                  {(hoveredService === service.id || selectedService?.id === service.id) && (
+                  {(hoveredService === service.id || isServiceSelected(service.id)) && (
                     <div className="text-accent animate-fade-in">
                       <ArrowRight size={16} />
                     </div>
@@ -167,15 +178,15 @@ export function ServiceSelectionStep({ selectedService, onServiceSelect, onNext 
         </div>
       )}
 
-      {selectedService && (
+      {canProceed && (
         <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 animate-scale-in">
           <div className="flex justify-between items-center">
             <div>
               <p className="font-medium text-card-foreground">
-                Selected: {translateByText(selectedService.name)}
+                Selected ({selectedServices.length}): {selectedServices.map((service) => translateByText(service.name)).join(', ')}
               </p>
               <p className="text-sm text-muted-foreground">
-                Total cost: ${selectedService.price} • Duration: {selectedService.duration} minutes
+                Services total: ${selectedServicesTotal.toFixed(2)} • Duration: {selectedServicesDuration} minutes
               </p>
             </div>
             <Button 

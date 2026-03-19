@@ -15,16 +15,18 @@ interface ReviewStepProps {
 }
 
 export function ReviewStep({ bookingData, onConfirm, onPrev, onEdit, isSubmitting = false }: ReviewStepProps) {
-  const { service, selectedAddOns, date, time, clientInfo } = bookingData;
+  const { selectedServices, selectedAddOns, date, time, clientInfo } = bookingData;
   const { t, language, translateByText } = useTranslations();
   
-  if (!service || !date || !time || !clientInfo || !clientInfo.fullName || !clientInfo.email || !clientInfo.phone) {
+  if (!selectedServices.length || !date || !time || !clientInfo || !clientInfo.fullName || !clientInfo.email || !clientInfo.phone) {
     return <div>Incomplete booking data</div>;
   }
 
   // Calculate totals
+  const servicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const servicesDurationTotal = selectedServices.reduce((sum, service) => sum + service.duration, 0);
   const addOnsTotal = (selectedAddOns || []).reduce((sum, addOn) => sum + addOn.price, 0);
-  const grandTotal = service.price + addOnsTotal;
+  const grandTotal = servicesTotal + addOnsTotal;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -57,13 +59,17 @@ export function ReviewStep({ bookingData, onConfirm, onPrev, onEdit, isSubmittin
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <p className="font-semibold text-card-foreground">{translateByText(service.name)}</p>
-              <p className="text-sm text-muted-foreground">Duration: {service.duration} minutes</p>
+            <div className="space-y-1">
+              {selectedServices.map((service) => (
+                <p key={service.id} className="font-semibold text-card-foreground">
+                  {translateByText(service.name)}
+                </p>
+              ))}
+              <p className="text-sm text-muted-foreground">Duration: {servicesDurationTotal} minutes</p>
             </div>
             <div className="flex items-center text-accent">
               <DollarSign size={16} className="mr-1" />
-              <span className="font-semibold">${service.price}</span>
+              <span className="font-semibold">${servicesTotal.toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>
@@ -100,7 +106,7 @@ export function ReviewStep({ bookingData, onConfirm, onPrev, onEdit, isSubmittin
               <p className="text-sm text-muted-foreground">
                 Estimated end: {/* Calculate end time based on duration */}
                 {format(
-                  new Date(date.getTime() + service.duration * 60000), 
+                  new Date(date.getTime() + servicesDurationTotal * 60000), 
                   "h:mm a"
                 )}
               </p>
@@ -189,8 +195,8 @@ export function ReviewStep({ bookingData, onConfirm, onPrev, onEdit, isSubmittin
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-card-foreground">Service:</span>
-            <span className="font-semibold">${service.price}</span>
+            <span className="text-card-foreground">Services ({selectedServices.length}):</span>
+            <span className="font-semibold">${servicesTotal.toFixed(2)}</span>
           </div>
           
           {selectedAddOns && selectedAddOns.length > 0 && (
@@ -202,7 +208,7 @@ export function ReviewStep({ bookingData, onConfirm, onPrev, onEdit, isSubmittin
           
           <div className="flex justify-between items-center">
             <span className="text-card-foreground">Duration:</span>
-            <span className="font-semibold">{service.duration} minutes</span>
+            <span className="font-semibold">{servicesDurationTotal} minutes</span>
           </div>
           
           <Separator className="bg-border" />
