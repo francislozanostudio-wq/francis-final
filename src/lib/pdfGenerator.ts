@@ -7,7 +7,7 @@ export const generateBookingPDF = async (bookingData: BookingData) => {
   const { selectedServices, date, time, clientInfo, confirmationNumber } = bookingData;
   
   if (!selectedServices.length || !date || !time || !clientInfo || !confirmationNumber) {
-    throw new Error('Incomplete booking data for PDF generation');
+    throw new Error('Incomplete booking data for PDF generation ');
   }
 
   const servicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
